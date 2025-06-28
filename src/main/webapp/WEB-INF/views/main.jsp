@@ -7,6 +7,6 @@
 <title>Insert title here</title>
 </head>
 <body>
-commit 테스트
+	test페이지
 </body>
 </html>
