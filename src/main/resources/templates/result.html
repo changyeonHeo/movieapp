@@ -2,27 +2,66 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title th:text="${movie.Title}">영화 상세</title>
+    <title>검색 결과</title>
     <style>
-        body { background-color: #121212; color: white; padding: 30px; font-family: Arial; }
-        .container { max-width: 800px; margin: auto; background-color: #1e1e1e; padding: 20px; border-radius: 10px; }
-        img { width: 300px; float: left; margin-right: 20px; border-radius: 10px; }
-        .info { overflow: hidden; }
-        h1, h2, p { margin: 10px 0; }
+        body {
+            background-color: #111;
+            color: #eee;
+            font-family: Arial, sans-serif;
+        }
+        .movie-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+        .movie-card {
+            background-color: #222;
+            border-radius: 10px;
+            padding: 10px;
+            width: 200px;
+            text-align: center;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+        }
+        .movie-card img {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+        .movie-title {
+            font-size: 16px;
+            margin: 10px 0 5px 0;
+            color: #fff;
+        }
+        .movie-release {
+            font-size: 14px;
+            color: #aaa;
+        }
+        .back-link {
+            display: block;
+            margin: 30px auto;
+            text-align: center;
+            color: #ff3c3c;
+            text-decoration: none;
+        }
     </style>
 </head>
 <body>
-    <div class="container" th:if="${movie != null}">
-        <img th:src="${movie.Poster}" alt="Poster">
-        <div class="info">
-            <h1 th:text="${movie.Title}">제목</h1>
-            <h2 th:text="'감독: ' + ${movie.Director}">감독</h2>
-            <p th:text="'장르: ' + ${movie.Genre}"></p>
-            <p th:text="'출연: ' + ${movie.Actors}"></p>
-            <p th:text="'줄거리: ' + ${movie.Plot}"></p>
-            <p th:text="'IMDB 평점: ' + ${movie.imdbRating}"></p>
-            <p th:text="'개봉일: ' + ${movie.Released}"></p>
-        </div>
+
+<div class="movie-container">
+    <div class="movie-card" th:each="movie : ${movies}">
+        <a th:href="@{'/movie?id=' + ${movie['id']}}">
+            <img th:if="${movie['poster_path'] != null}"
+                 th:src="'https://image.tmdb.org/t/p/w500' + ${movie['poster_path']}" 
+                 alt="포스터 없음" />
+            <div class="movie-title" th:text="${movie['title']}">제목</div>
+            <div class="movie-release" th:text="${movie['release_date']}">개봉일</div>
+        </a>
     </div>
+</div>
+
+<a th:href="@{/}" class="back-link">← 메인으로 돌아가기</a>
+
 </body>
 </html>

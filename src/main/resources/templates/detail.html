@@ -4,21 +4,92 @@
     <meta charset="UTF-8">
     <title th:text="${movie.title}">상세 정보</title>
     <style>
-        body { background-color: #121212; color: white; font-family: Arial; padding: 20px; }
-        .container { max-width: 800px; margin: auto; background-color: #1e1e1e; padding: 20px; border-radius: 10px; }
-        img { float: left; width: 300px; margin-right: 20px; border-radius: 10px; }
-        .info { overflow: hidden; }
+        body {
+            background-color: #121212;
+            color: white;
+            font-family: Arial;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background-color: #1e1e1e;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .poster {
+            float: left;
+            width: 300px;
+            margin-right: 20px;
+        }
+        .poster img {
+            width: 100%;
+            border-radius: 10px;
+        }
+        .info {
+            overflow: hidden;
+        }
+        .info h1 {
+            margin-top: 0;
+        }
+        .section {
+            margin-top: 40px;
+            clear: both;
+        }
+        .cast-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .cast-card {
+            width: 120px;
+            text-align: center;
+        }
+        .cast-card img {
+            width: 100px;
+            height: 140px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+        .cast-card .name {
+            margin-top: 5px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .cast-card .character {
+            font-size: 12px;
+            color: #aaa;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <img th:src="'https://image.tmdb.org/t/p/w500' + ${movie.poster_path}" alt="포스터">
+        <div class="poster">
+            <img th:src="'https://image.tmdb.org/t/p/w500' + ${movie.poster_path}" alt="포스터">
+        </div>
         <div class="info">
             <h1 th:text="${movie.title}">제목</h1>
             <p th:text="'개봉일: ' + ${movie.release_date}"></p>
             <p th:text="'평점: ' + ${movie.vote_average}"></p>
-            <p th:text="'줄거리: ' + ${movie.overview}"></p>
             <p th:text="'런타임: ' + ${movie.runtime} + '분'"></p>
+            <p th:text="'감독: ' + ${director}"></p>
+            <p th:text="${movie.overview}">줄거리</p>
+        </div>
+
+        <div class="section">
+            <h2>출연진</h2>
+            <div class="cast-container">
+                <div class="cast-card" th:each="cast : ${castList}">
+                    <img th:if="${cast.profile_path != null}"
+                         th:src="'https://image.tmdb.org/t/p/w185' + ${cast.profile_path}"
+                         alt="배우사진" />
+                    <img th:if="${cast.profile_path == null}"
+                         src="https://via.placeholder.com/100x140?text=No+Image"
+                         alt="기본 이미지" />
+                    <div class="name" th:text="${cast.name}">배우 이름</div>
+                    <div class="character" th:text="${cast.character}">역할</div>
+                </div>
+            </div>
         </div>
     </div>
 </body>
