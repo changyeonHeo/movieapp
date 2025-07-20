@@ -6,6 +6,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -155,4 +156,78 @@ public class MovieController {
         }
         return "actor";
     }
+    
+    @GetMapping("/movie/modal")
+    @ResponseBody
+    public Map<String, Object> getMovieModalData(@RequestParam("id") String movieId) {
+        Map<String, Object> result = new HashMap<>();
+        try {
+            // 상세 정보
+            String detailUrl = "https://api.themoviedb.org/3/movie/" + movieId + "?language=ko-KR";
+            JSONObject movie = fetchMovieDetail(detailUrl);
+
+            // 크레딧 정보
+            String creditUrl = "https://api.themoviedb.org/3/movie/" + movieId + "/credits?language=ko-KR";
+            JSONObject credit = fetchMovieDetail(creditUrl);
+
+            JSONArray castArray = credit.getJSONArray("cast");
+            JSONArray crewArray = credit.getJSONArray("crew");
+
+            String director = "";
+            for (int i = 0; i < crewArray.length(); i++) {
+                JSONObject crew = crewArray.getJSONObject(i);
+                if ("Director".equals(crew.optString("job"))) {
+                    director = crew.optString("name", "");
+                    break;
+                }
+            }
+
+            // 출연진 리스트 (최대 10명)
+            List<Map<String, Object>> castList = new ArrayList<>();
+            for (int i = 0; i < Math.min(10, castArray.length()); i++) {
+                JSONObject cast = castArray.getJSONObject(i);
+                Map<String, Object> castMap = new HashMap<>();
+                castMap.put("id", cast.getInt("id"));
+                castMap.put("name", cast.getString("name"));
+                castMap.put("character", cast.optString("character", ""));
+                castMap.put("profile_path", cast.optString("profile_path", null));
+                castList.add(castMap);
+            }
+
+            result.put("title", movie.optString("title", ""));
+            result.put("poster_path", movie.optString("poster_path", ""));
+            result.put("release_date", movie.optString("release_date", ""));
+            result.put("vote_average", movie.optDouble("vote_average", 0));
+            result.put("runtime", movie.optInt("runtime", 0));
+            result.put("overview", movie.optString("overview", ""));
+            result.put("director", director);
+            result.put("castList", castList);
+
+        } catch (Exception e) {
+            result.put("error", "상세 정보 로딩 실패: " + e.getMessage());
+        }
+
+        return result;
+    }
+    @GetMapping("/actor/modal")
+    @ResponseBody
+    public Map<String, Object> getActorModal(@RequestParam("id") String actorId) {
+        Map<String, Object> result = new HashMap<>();
+        try {
+            String url = "https://api.themoviedb.org/3/person/" + actorId + "?language=ko-KR";
+            JSONObject actor = fetchMovieDetail(url);
+
+            result.put("name", actor.optString("name", ""));
+            result.put("birthday", actor.optString("birthday", ""));
+            result.put("place_of_birth", actor.optString("place_of_birth", ""));
+            result.put("known_for_department", actor.optString("known_for_department", ""));
+            result.put("biography", actor.optString("biography", ""));
+            result.put("profile_path", actor.optString("profile_path", ""));
+        } catch (Exception e) {
+            result.put("error", "배우 정보 로딩 실패: " + e.getMessage());
+        }
+
+        return result;
+    }
+
 }

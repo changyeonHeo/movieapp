@@ -22,6 +22,7 @@
             width: 200px;
             text-align: center;
             box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+            cursor: pointer;
         }
         .movie-card img {
             width: 100%;
@@ -60,31 +61,235 @@
             cursor: pointer;
         }
         a, a:visited, a:hover, a:active {
-        color: white;
-        text-decoration: none;
-    }
+            color: white;
+            text-decoration: none;
+        }
+
+        /* 모달 슬라이드 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow-y: auto;
+            background-color: rgba(0, 0, 0, 0.9);
+            animation: slideDown 0.4s ease;
+        }
+        @keyframes slideDown {
+            from { top: -50px; opacity: 0; }
+            to { top: 0; opacity: 1; }
+        }
+        .modal-content {
+            background-color: #1e1e1e;
+            margin: 50px auto;
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 900px;
+            color: white;
+            position: relative;
+        }
+        .modal-content img {
+            width: 300px;
+            border-radius: 10px;
+            float: left;
+            margin-right: 20px;
+        }
+        .modal-content h1 {
+            margin-top: 0;
+        }
+        .close-button {
+            position: absolute;
+            right: 15px;
+            top: 10px;
+            font-size: 28px;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+        }
+        .close-button:hover {
+            color: #ff3c3c;
+        }
+        .overview {
+            clear: both;
+            margin-top: 20px;
+        }
+
+        .cast-slider {
+            display: flex;
+            overflow-x: auto;
+            gap: 10px;
+            padding: 10px 0;
+            margin-top: 30px;
+        }
+        .cast-slide {
+            flex: 0 0 auto;
+            background-color: #222;
+            border-radius: 8px;
+            padding: 10px;
+            width: 140px;
+            text-align: center;
+            color: white;
+        }
+        .cast-slide img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
     </style>
 </head>
 <body>
 
-    <div class="search-box">
-        <form th:action="@{/search}" method="get">
-            <input type="text" name="query" placeholder="영화 제목을 입력하세요" required />
-            <button type="submit">검색</button>
-        </form>
-    </div>
+<div class="search-box">
+    <form th:action="@{/search}" method="get">
+        <input type="text" name="query" placeholder="영화 제목을 입력하세요" required />
+        <button type="submit">검색</button>
+    </form>
+</div>
 
-    <div class="movie-container">
-        <div class="movie-card" th:each="movie : ${movies}">
-            <a th:href="@{'/movie?id=' + ${movie['id']}}">
-                <img th:if="${movie['poster_path'] != null}"
-                     th:src="'https://image.tmdb.org/t/p/w500' + ${movie['poster_path']}" 
-                     alt="포스터 없음" />
-                <div class="movie-title" th:text="${movie['title']}">제목</div>
-                <div class="movie-release" th:text="${movie['release_date']}">개봉일</div>
-            </a>
-        </div>
+<div class="movie-container">
+    <div class="movie-card" th:each="movie : ${movies}" th:attr="data-id=${movie['id']}">
+        <img th:if="${movie['poster_path'] != null}"
+             th:src="'https://image.tmdb.org/t/p/w500' + ${movie['poster_path']}"
+             alt="포스터 없음" />
+        <div class="movie-title" th:text="${movie['title']}">제목</div>
+        <div class="movie-release" th:text="${movie['release_date']}">개봉일</div>
     </div>
+</div>
+
+<!-- 모달 -->
+<div id="movieModal" class="modal">
+    <div class="modal-content">
+        <span class="close-button" onclick="closeModal()">&times;</span>
+        <div id="modalBody">로딩 중...</div>
+    </div>
+</div>
+
+<script>
+    document.querySelectorAll('.movie-card').forEach(card => {
+        card.addEventListener('click', function () {
+            const movieId = this.getAttribute('data-id');
+            openModal(movieId);
+        });
+    });
+
+    function openModal(movieId) {
+        const modal = document.getElementById('movieModal');
+        const modalBody = document.getElementById('modalBody');
+        modal.style.display = 'block';
+
+        fetch(`/movie/modal?id=${movieId}`)
+            .then(response => response.json())
+            .then(data => {
+                const castSlides = data.castList?.map(cast => {
+                    const profile = cast.profile_path ?
+                        `<img src="https://image.tmdb.org/t/p/w185${cast.profile_path}" alt="프로필">`
+                        : `<div style="width:100%;height:200px;background:#444;border-radius:8px;"></div>`;
+                    return `
+                        <div class="cast-slide">
+                            <a href="/actor?id=${cast.id}">
+                                ${profile}
+                                <div>${cast.name}</div>
+                                <div style="font-size:12px;color:#aaa;">(${cast.character})</div>
+                            </a>
+                        </div>
+                    `;
+                }).join('') || '<p>출연진 정보 없음</p>';
+
+                modalBody.innerHTML = `
+                    <img src="https://image.tmdb.org/t/p/w500${data.poster_path}" alt="포스터">
+                    <h1>${data.title}</h1>
+                    <p>개봉일: ${data.release_date}</p>
+                    <p>평점: ${data.vote_average}</p>
+                    <p>런타임: ${data.runtime}분</p>
+                    <p>감독: ${data.director}</p>
+                    <div class="overview"><p>${data.overview}</p></div>
+                    <h2 style="margin-top:40px;">출연진</h2>
+                    <div class="cast-slider">
+                        ${castSlides}
+                    </div>
+                `;
+            })
+            .catch(err => {
+                modalBody.innerHTML = '<p>정보를 불러오는 데 실패했습니다.</p>';
+            });
+    }
+
+    function closeModal() {
+        document.getElementById('movieModal').style.display = 'none';
+    }
+
+    window.onclick = function (event) {
+        const modal = document.getElementById('movieModal');
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    }
+</script>
+<!-- 배우 모달 -->
+<div id="actorModal" class="modal">
+    <div class="modal-content">
+        <span class="close-button" onclick="closeActorModal()">&times;</span>
+        <div id="actorModalBody">로딩 중...</div>
+    </div>
+</div>
+
+<script>
+    // 배우 클릭 시 모달 열기
+    document.addEventListener('click', function (e) {
+        const target = e.target.closest('.cast-slide a');
+        if (target) {
+            e.preventDefault();
+            const url = new URL(target.href);
+            const actorId = url.searchParams.get("id");
+            openActorModal(actorId);
+        }
+    });
+
+    function openActorModal(actorId) {
+        const modal = document.getElementById('actorModal');
+        const body = document.getElementById('actorModalBody');
+        modal.style.display = 'block';
+        body.innerHTML = '로딩 중...';
+
+        fetch(`/actor/modal?id=${actorId}`)
+            .then(res => res.json())
+            .then(data => {
+                const profileImg = data.profile_path
+                    ? `<img src="https://image.tmdb.org/t/p/w300${data.profile_path}" alt="배우">`
+                    : `<div style="width:300px;height:400px;background:#444;border-radius:10px;"></div>`;
+
+                body.innerHTML = `
+                    <div style="float:left; margin-right:20px;">${profileImg}</div>
+                    <h1>${data.name}</h1>
+                    <p><strong>생년월일:</strong> ${data.birthday || '정보 없음'}</p>
+                    <p><strong>출생지:</strong> ${data.place_of_birth || '정보 없음'}</p>
+                    <p><strong>분야:</strong> ${data.known_for_department || '정보 없음'}</p>
+                    <div class="overview" style="clear:both; margin-top:20px;">
+                        <h3>소개</h3>
+                        <p>${data.biography || '소개 정보가 없습니다.'}</p>
+                    </div>
+                `;
+            })
+            .catch(err => {
+                body.innerHTML = '<p>배우 정보를 불러오지 못했습니다.</p>';
+            });
+    }
+
+    function closeActorModal() {
+        document.getElementById('actorModal').style.display = 'none';
+    }
+
+    window.addEventListener('click', function (e) {
+        const actorModal = document.getElementById('actorModal');
+        if (e.target === actorModal) {
+            actorModal.style.display = 'none';
+        }
+    });
+</script>
 
 </body>
 </html>
