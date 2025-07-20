@@ -60,6 +60,27 @@
             font-size: 12px;
             color: #aaa;
         }
+        .cast-slider {
+    display: flex;
+    overflow-x: auto;
+    gap: 10px;
+    padding: 10px 0;
+}
+.cast-slide {
+    flex: 0 0 auto;
+    background-color: #222;
+    border-radius: 8px;
+    padding: 10px;
+    width: 140px;
+    text-align: center;
+    color: white;
+}
+.cast-slide img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 8px;
+}
     </style>
 </head>
 <body>
@@ -78,18 +99,17 @@
 
         <div class="section">
             <h2>출연진</h2>
-            <div class="cast-container">
-                <div class="cast-card" th:each="cast : ${castList}">
-                    <img th:if="${cast.profile_path != null}"
-                         th:src="'https://image.tmdb.org/t/p/w185' + ${cast.profile_path}"
-                         alt="배우사진" />
-                    <img th:if="${cast.profile_path == null}"
-                         src="https://via.placeholder.com/100x140?text=No+Image"
-                         alt="기본 이미지" />
-                    <div class="name" th:text="${cast.name}">배우 이름</div>
-                    <div class="character" th:text="${cast.character}">역할</div>
-                </div>
-            </div>
+            <div class="cast-slider">
+    <div class="cast-slide" th:each="cast : ${castList}">
+        <a th:href="@{'/actor?id=' + ${cast['id']}}">
+            <img th:if="${cast['profile_path'] != null}"
+                 th:src="'https://image.tmdb.org/t/p/w185' + ${cast['profile_path']}"
+                 alt="프로필" />
+            <div th:text="${cast['name']}"></div>
+            <div th:text="'(' + ${cast['character']} + ')'"></div>
+        </a>
+    </div>
+</div>
         </div>
     </div>
 </body>

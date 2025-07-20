@@ -70,6 +70,7 @@ public class MovieController {
             for (int i = 0; i < Math.min(10, castArray.length()); i++) {
                 JSONObject cast = castArray.getJSONObject(i);
                 Map<String, Object> map = new HashMap<>();
+                map.put("id", cast.getInt("id"));
                 map.put("name", cast.getString("name"));
                 map.put("character", cast.optString("character", ""));
                 map.put("profile_path", cast.optString("profile_path", null));
@@ -141,5 +142,17 @@ public class MovieController {
         br.close();
 
         return new JSONObject(sb.toString());
+    }
+    
+    @GetMapping("/actor")
+    public String actorDetail(@RequestParam("id") String actorId, Model model) {
+        try {
+            String url = "https://api.themoviedb.org/3/person/" + actorId + "?language=ko-KR";
+            JSONObject actor = fetchMovieDetail(url);
+            model.addAttribute("actor", actor.toMap());
+        } catch (Exception e) {
+            model.addAttribute("error", "배우 정보 로딩 실패: " + e.getMessage());
+        }
+        return "actor";
     }
 }
