@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${movie.title}">상세 정보</title>
+    <style>
+        body { background-color: #121212; color: white; font-family: Arial; padding: 20px; }
+        .container { max-width: 800px; margin: auto; background-color: #1e1e1e; padding: 20px; border-radius: 10px; }
+        img { float: left; width: 300px; margin-right: 20px; border-radius: 10px; }
+        .info { overflow: hidden; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <img th:src="'https://image.tmdb.org/t/p/w500' + ${movie.poster_path}" alt="포스터">
+        <div class="info">
+            <h1 th:text="${movie.title}">제목</h1>
+            <p th:text="'개봉일: ' + ${movie.release_date}"></p>
+            <p th:text="'평점: ' + ${movie.vote_average}"></p>
+            <p th:text="'줄거리: ' + ${movie.overview}"></p>
+            <p th:text="'런타임: ' + ${movie.runtime} + '분'"></p>
+        </div>
+    </div>
+</body>
+</html>
