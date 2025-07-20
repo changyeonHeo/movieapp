@@ -4,16 +4,45 @@
     <meta charset="UTF-8">
     <title>검색 결과</title>
     <style>
+    a, a:visited, a:hover, a:active {
+        color: white;
+        text-decoration: none;
+    }
         body {
             background-color: #111;
             color: #eee;
             font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
         }
+        .header {
+            background-color: #1c1c1c;
+            padding: 20px;
+            text-align: center;
+        }
+        .header form input[type="text"] {
+            padding: 10px;
+            width: 300px;
+            border-radius: 4px;
+            border: none;
+            font-size: 16px;
+        }
+        .header form input[type="submit"] {
+            padding: 10px 20px;
+            border: none;
+            background-color: #ff3c3c;
+            color: white;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
         .movie-container {
             display: flex;
             flex-wrap: wrap;
             gap: 20px;
             justify-content: center;
+            padding: 20px;
         }
         .movie-card {
             background-color: #222;
@@ -49,11 +78,20 @@
 </head>
 <body>
 
+<!-- 검색창 -->
+<div class="header">
+    <form action="/search" method="get">
+        <input type="text" name="query" th:value="${param.query}" placeholder="영화 제목 검색">
+        <input type="submit" value="검색">
+    </form>
+</div>
+
+<!-- 결과 영화 목록 -->
 <div class="movie-container">
     <div class="movie-card" th:each="movie : ${movies}">
         <a th:href="@{'/movie?id=' + ${movie['id']}}">
             <img th:if="${movie['poster_path'] != null}"
-                 th:src="'https://image.tmdb.org/t/p/w500' + ${movie['poster_path']}" 
+                 th:src="'https://image.tmdb.org/t/p/w500' + ${movie['poster_path']}"
                  alt="포스터 없음" />
             <div class="movie-title" th:text="${movie['title']}">제목</div>
             <div class="movie-release" th:text="${movie['release_date']}">개봉일</div>
