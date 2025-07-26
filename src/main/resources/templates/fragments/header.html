@@ -1,0 +1,12 @@
+<!-- fragments/header.html -->
+<div class="header-container" th:fragment="commonHeader">
+    <div class="logo-wrapper">
+        <a href="/"><img src="/images/film-pick-logo.png" alt="FilmPick 로고"></a>
+    </div>
+    <div class="search-wrapper">
+        <form th:action="@{/search}" method="get">
+            <input type="text" name="query" placeholder="영화 제목을 입력하세요" required th:value="${param.query}" />
+            <button type="submit">검색</button>
+        </form>
+    </div>
+</div>

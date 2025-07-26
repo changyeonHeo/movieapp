@@ -3,208 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <title>검색 결과</title>
-    <style>
-        body {
-            background-color: #111;
-            color: #eee;
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-        }
-
-        .logo-wrapper {
-    position: static;
-    padding: 20px 20px 0 20px;
-    background-color: #111;
-}
-
-        .logo-wrapper img {
-            height: 100px;
-        }
-
-        .header {
-            background-color: #1c1c1c;
-            padding: 20px;
-            text-align: center;
-        }
-
-        .header form input[type="text"] {
-            padding: 10px;
-            width: 300px;
-            border-radius: 4px;
-            border: none;
-            font-size: 16px;
-        }
-
-        .header form input[type="submit"] {
-            padding: 10px 20px;
-            border: none;
-            background-color: #ff3c3c;
-            color: white;
-            font-size: 16px;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        .movie-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            justify-content: center;
-            padding: 20px;
-            margin-top: 140px; /* 로고와 겹치지 않게 */
-        }
-
-        .movie-card {
-            background-color: #222;
-            border-radius: 10px;
-            padding: 10px;
-            width: 200px;
-            text-align: center;
-            box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
-            cursor: pointer;
-        }
-
-        .movie-card img {
-            width: 100%;
-            height: 300px;
-            object-fit: cover;
-            border-radius: 8px;
-        }
-
-        .movie-title {
-            font-size: 16px;
-            margin: 10px 0 5px 0;
-            color: #fff;
-        }
-
-        .movie-release {
-            font-size: 14px;
-            color: #aaa;
-        }
-
-        a, a:visited, a:hover, a:active,
-        .cast-slide a, .cast-slide a:visited, .cast-slide a:hover, .cast-slide a:active {
-            color: white;
-            text-decoration: none;
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow-y: auto;
-            background-color: rgba(0, 0, 0, 0.9);
-            animation: slideDown 0.4s ease;
-        }
-
-        @keyframes slideDown {
-            from { top: -50px; opacity: 0; }
-            to { top: 0; opacity: 1; }
-        }
-
-        .modal-content {
-            background-color: #1e1e1e;
-            margin: 50px auto;
-            padding: 20px;
-            border-radius: 10px;
-            max-width: 900px;
-            color: white;
-            position: relative;
-        }
-
-        .modal-content img {
-            width: 300px;
-            border-radius: 10px;
-            float: left;
-            margin-right: 20px;
-        }
-
-        .modal-content h1 {
-            margin-top: 0;
-        }
-
-        .close-button {
-            position: absolute;
-            right: 15px;
-            top: 10px;
-            font-size: 28px;
-            font-weight: bold;
-            color: white;
-            cursor: pointer;
-        }
-
-        .close-button:hover {
-            color: #ff3c3c;
-        }
-
-        .overview {
-            clear: both;
-            margin-top: 20px;
-        }
-
-        .cast-slider {
-            display: flex;
-            overflow-x: auto;
-            gap: 10px;
-            padding: 10px 0;
-            margin-top: 30px;
-        }
-
-        .cast-slide {
-            flex: 0 0 auto;
-            background-color: #222;
-            border-radius: 8px;
-            padding: 10px;
-            width: 140px;
-            text-align: center;
-            color: white;
-        }
-
-        .cast-slide img {
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
-            border-radius: 8px;
-        }
-
-        .back-button {
-            display: inline-block;
-            padding: 10px 20px;
-            background-color: #ff3c3c;
-            color: white;
-            border-radius: 5px;
-            font-size: 16px;
-            text-decoration: none;
-            transition: background-color 0.3s ease;
-            margin-bottom: 30px;
-        }
-
-        .back-button:hover {
-            background-color: #e22b2b;
-        }
-    </style>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/modal.css">
 </head>
 <body>
 
-<!-- 왼쪽 상단 로고 -->
-<div class="logo-wrapper">
-    <a href="/">
-        <img src="/images/film-pick-logo.png" alt="FilmPick 로고">
-    </a>
-</div>
-
-<!-- 검색창 -->
-<div class="header">
-    <form action="/search" method="get">
-        <input type="text" name="query" th:value="${param.query}" placeholder="영화 제목 검색">
-        <input type="submit" value="검색">
-    </form>
-</div>
+<!-- 로고 + 검색창 -->
+<div th:replace="fragments/header :: commonHeader"></div>
 
 <!-- 영화 목록 -->
 <div class="movie-container">
@@ -215,8 +20,6 @@
         <div class="movie-release" th:text="${movie['release_date']}">개봉일</div>
     </div>
 </div>
-
-<!-- 영화 상세 모달 -->
 <div id="movieModal" class="modal">
     <div class="modal-content">
         <span class="close-button" onclick="closeModal()">&times;</span>
@@ -224,7 +27,6 @@
     </div>
 </div>
 
-<!-- 배우 상세 모달 -->
 <div id="actorModal" class="modal">
     <div class="modal-content">
         <span class="close-button" onclick="closeActorModal()">&times;</span>
@@ -232,12 +34,12 @@
     </div>
 </div>
 
+<!-- 뒤로가기 버튼 -->
 <div style="text-align: center; margin: 40px 0;">
     <a href="/" class="back-button">← 메인 페이지로 돌아가기</a>
 </div>
 
 <script>
-    // 영화 클릭 → 상세 모달
     document.querySelectorAll('.movie-card').forEach(card => {
         card.addEventListener('click', function () {
             const movieId = this.getAttribute('data-id');
@@ -286,7 +88,6 @@
         document.getElementById('movieModal').style.display = 'none';
     }
 
-    // 배우 클릭 → 배우 모달
     document.addEventListener('click', function (e) {
         const target = e.target.closest('.cast-slide a');
         if (target) {
